@@ -71,7 +71,7 @@ on:
 
 jobs:
   alert:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Test workflow
     steps:       
     - uses: synced-actions/github-actions-pr-sync@main
