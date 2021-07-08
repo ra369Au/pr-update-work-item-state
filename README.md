@@ -59,7 +59,7 @@ The work Item Id must be prefixed with AB and added as **AB#[Workitem Id]** in t
 
 ![img](./assets/images/pull-request-window.png)
    
-### Sample WorkFlow File 
+### Sample WorkFlow File
 
 ```yml
 name: Update work item state when PR is merged
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test workflow
     steps:       
-    - uses: CanarysAutomations/pr-update-work-item-state@master
+    - uses: synced-actions/github-actions-pr-sync@main
       env: 
         gh_token : '${{ secrets.GH_TOKEN }}'   
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
@@ -85,4 +85,3 @@ jobs:
         gh_repo: ''
         pull_number: '${{github.event.number}}' 
 ```
-
