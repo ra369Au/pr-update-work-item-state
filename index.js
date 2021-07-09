@@ -122,12 +122,12 @@ async function updateworkitem(workItemId,env,pullstatus) {
                     let patchDocument = [
                         {
                             op: "add",
-                            // path: "/fields/System.State",
+                            path: "/fields/System.State",
                             value: newstate
                         },
                         {
                             op: "add",
-                            // path: "/fields/System.Description",
+                            path: "/fields/System.Description",
                             value: newdescription
                         }
                     ];
@@ -150,12 +150,12 @@ async function updateworkitem(workItemId,env,pullstatus) {
                     let patchDocument = [
                         {
                             op: "add",
-                            // path: "/fields/System.State",
+                            path: "/fields/System.State",
                             value: currentstate
                         },
                         {
                             op: "add",
-                            // path: "/fields/System.Description",
+                            path: "/fields/System.Description",
                             value: newdescription
                         }
                     ];
@@ -181,12 +181,12 @@ async function updateworkitem(workItemId,env,pullstatus) {
                         let patchDocument = [
                             {
                                 op: "add",
-                                // path: "/fields/System.State",
+                                path: "/fields/System.State",
                                 value: currentstate
                             },
                             {
                                 op: "add",
-                                // path: "/fields/System.Description",
+                                path: "/fields/System.Description",
                                 value: newdescription
                             }
                         ];
