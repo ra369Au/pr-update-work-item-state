@@ -43,17 +43,17 @@ async function getworkitemid (env) {
 
             var pulldetails = result.body;
 
-            //var workItemId = pulldetails.substr(4,3);
+            var workItemId = pulldetails.substr(4,3);
 
-            var patternmatch = pulldetails.match(/\[(.*?)\]/);
+            // var patternmatch = pulldetails.match(/\[(.*?)\]/);
 
-            if (patternmatch) {
+            // if (patternmatch) {
  
-             var workitem = patternmatch[1];
-             var newmatch = workitem.split(/#/);
-             var workItemId = newmatch[1];
+            //  var workitem = patternmatch[1];
+            //  var newmatch = workitem.split(/#/);
+            //  var workItemId = newmatch[1];
      
-             }
+            //  }
 
         } catch (err){
             core.setFailed(err);
