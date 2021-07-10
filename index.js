@@ -163,7 +163,8 @@ async function updateworkitem(workItemId,env,pullstatus) {
                         }
                     ];
 
-                    let workItemSaveResult = null;
+                    // let workItemSaveResult = null;
+                    let workItemSaveResult = ''
                 
                     workItemSaveResult = await client.updateWorkItem(
                             (customHeaders = []),
@@ -194,7 +195,8 @@ async function updateworkitem(workItemId,env,pullstatus) {
                             }
                         ];
     
-                        let workItemSaveResult = null;
+                        // let workItemSaveResult = null;
+                        let workItemSaveResult = ''
                     
                         workItemSaveResult = await client.updateWorkItem(
                                 (customHeaders = []),
