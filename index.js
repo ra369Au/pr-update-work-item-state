@@ -114,7 +114,8 @@ async function updateworkitem(workItemId,env,pullstatus) {
                    } 
                 }
                 
-                let workItemSaveResult = null;
+                // let workItemSaveResult = null;
+                let workItemSaveResult = ''
                 let mergestatus = [];
                 let newdescription = [];
                 if (pullstatus == "204"){
