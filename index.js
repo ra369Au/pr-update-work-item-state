@@ -114,8 +114,7 @@ async function updateworkitem(workItemId,env,pullstatus) {
                    } 
                 }
                 
-                // let workItemSaveResult = null;
-                let workItemSaveResult = ''
+                let workItemSaveResult = null;
                 let mergestatus = [];
                 let newdescription = [];
                 if (pullstatus == "204"){
@@ -163,8 +162,7 @@ async function updateworkitem(workItemId,env,pullstatus) {
                         }
                     ];
 
-                    // let workItemSaveResult = null;
-                    let workItemSaveResult = ''
+                    let workItemSaveResult = null;
                 
                     workItemSaveResult = await client.updateWorkItem(
                             (customHeaders = []),
@@ -195,8 +193,7 @@ async function updateworkitem(workItemId,env,pullstatus) {
                             }
                         ];
     
-                        // let workItemSaveResult = null;
-                        let workItemSaveResult = ''
+                        let workItemSaveResult = null;
                     
                         workItemSaveResult = await client.updateWorkItem(
                                 (customHeaders = []),
