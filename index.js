@@ -60,7 +60,9 @@ async function getWorkItemIdFromPrTitleOrBranchName(env) {
             return workItemId;
         }
     } catch (err){
-        core.setFailed(err);
+        // core.setFailed(err);
+        const passErrorAsAStringBecauseItsRequired = error.toString()
+        core.setFailed(passErrorAsAStringBecauseItsRequired)
     }
 }
 
