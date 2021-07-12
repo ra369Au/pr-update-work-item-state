@@ -17,8 +17,7 @@ async function main () {
     vm = getValuesFromPayload(github.context.payload,env);
 
     try {
-        // var workItemId = "";
-        var workItemId;
+        var workItemId = "";
         workItemId = await getWorkItemIdFromPrTitleOrBranchName(env);
         if (workItemId == undefined || workItemId == "") {
             console.log("Work Item ID was not found in PR Title/Branch name, cannot update the work item (handled)");
