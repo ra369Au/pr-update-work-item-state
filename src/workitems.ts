@@ -24,7 +24,7 @@ export async function fetch(
 
   const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token)
   const connection = new azdev.WebApi(
-    `https://dev.azure.com/${env.ado_organization}`,
+    `https://devops.azurecloudgov.us/${env.ado_organization}`,
     authHandler
   )
 
@@ -144,7 +144,7 @@ export async function create(
 
   const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token)
   const connection = new azdev.WebApi(
-    `https://dev.azure.com/${env.ado_organization}`,
+    `https://devops.azurecloudgov.us/${env.ado_organization}`,
     authHandler
   )
 
@@ -201,7 +201,7 @@ export async function update(
 
   const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token)
   const connection = new azdev.WebApi(
-    `https://dev.azure.com/${env.ado_organization}`,
+    `https://devops.azurecloudgov.us/${env.ado_organization}`,
     authHandler
   )
 
