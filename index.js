@@ -27,7 +27,9 @@ async function main () {
         await updateWorkItem(workItemId, env);
     } catch (err) {
         console.log(err);
-        core.setFailed();
+        // core.setFailed();
+        const passErrorAsAStringBecauseItsRequired = err.toString()
+        core.setFailed(passErrorAsAStringBecauseItsRequired)
     }
 }
 
