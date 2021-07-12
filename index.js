@@ -82,7 +82,9 @@ async function isOpened(env) {
         var pullRequestStatus = result.state;
         return pullRequestStatus == "open";
     } catch (err){
-        core.setFailed(err);
+        // core.setFailed(err);
+        const passErrorAsAStringBecauseItsRequired = err.toString()
+        core.setFailed(passErrorAsAStringBecauseItsRequired)
     }
 }
 
@@ -121,7 +123,9 @@ async function isClosed(env) {
         var pullRequestStatus = result.state;
         return pullRequestStatus == "closed";
     } catch (err){
-        core.setFailed(err);
+        // core.setFailed(err);
+        const passErrorAsAStringBecauseItsRequired = err.toString()
+        core.setFailed(passErrorAsAStringBecauseItsRequired)
     }
 }
 
@@ -260,7 +264,9 @@ async function updateWorkItem(workItemId, env) {
                             );
                     console.log("Work Item " + workItemId + " state is updated to " + env.inprogressstate);     
                     } catch (err) {
-                        console.log(err);
+                        // console.log(err);
+                        const passErrorAsAStringBecauseItsRequired = err.toString()
+                        core.setFailed(passErrorAsAStringBecauseItsRequired)
                     }
             }
 
