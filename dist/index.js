@@ -33493,8 +33493,7 @@ function fetch(env, payload) {
             workItem: null
         };
         const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token);
-        const connection = new azdev.WebApi(`https://devops.azurecloudgov.us/${env.ado_organization}`, authHandler);
-        // const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
+        const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
         try {
             response.code = 500;
             response.message = 'Error calling getWorkItemTrackingApi: ';
@@ -33588,8 +33587,7 @@ function create(env, payload) {
             }
         ];
         const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token);
-        const connection = new azdev.WebApi(`https://devops.azurecloudgov.us/${env.ado_organization}`, authHandler);
-        // const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
+        const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
         try {
             response.message = 'Error calling getWorkItemTrackingApi: ';
             const client = yield connection.getWorkItemTrackingApi();
@@ -33629,8 +33627,7 @@ function update(env, workItemId, patchDocument) {
             return response;
         }
         const authHandler = azdev.getPersonalAccessTokenHandler(env.ado_token);
-        const connection = new azdev.WebApi(`https://devops.azurecloudgov.us/${env.ado_organization}`, authHandler);
-        // const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
+        const connection = new azdev.WebApi(`https://dev.azure.com/${env.ado_organization}`, authHandler);
         try {
             response.message = 'Error calling getWorkItemTrackingApi: ';
             const client = yield connection.getWorkItemTrackingApi();
