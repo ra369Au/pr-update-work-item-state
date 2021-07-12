@@ -61,7 +61,7 @@ async function getWorkItemIdFromPrTitleOrBranchName(env) {
         }
     } catch (err){
         // core.setFailed(err);
-        const passErrorAsAStringBecauseItsRequired = error.toString()
+        const passErrorAsAStringBecauseItsRequired = err.toString()
         core.setFailed(passErrorAsAStringBecauseItsRequired)
     }
 }
