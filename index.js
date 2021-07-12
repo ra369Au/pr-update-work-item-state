@@ -1,5 +1,5 @@
 
-const azdev = require(`azure-devops-node-api`);
+const azureDevOpsHandler = require(`azure-devops-node-api`);
 const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const fetch = require("node-fetch");
@@ -7,7 +7,7 @@ global.Headers = fetch.Headers;
 
 
 main();
-function main () {
+async function main () {
   
     const env = process.env
     const context = github.context; 
@@ -16,154 +16,210 @@ function main () {
 
     vm = getValuesFromPayload(github.context.payload,env);
 
-    console.log(vm);
-
-   if(vm.action == "closed")
-   {
-    	getworkitemid(vm.env);
-   } else {
+    try {
+        var workItemId = "";
+        workItemId = await getWorkItemIdFromPrTitleOrBranchName(env);
+        if (workItemId == undefined || workItemId == "") {
+            console.log("Work Item ID was not found in PR Title/Branch name, cannot update the work item (handled)");
+            return;
+        }
+        
+        await updateWorkItem(workItemId, env);
+    } catch (err) {
+        console.log(err);
         core.setFailed();
-   }
-    
+    }
 }
 
-async function getworkitemid (env) {
-
+async function getWorkItemIdFromPrTitleOrBranchName(env) {
     let h = new Headers();
-    let auth = 'token ' + env.ghtoken;
+    let auth = 'token ' + env.gh_token;
     h.append ('Authorization', auth );
     try {   
-            // const requesturl = "https://api.github.com/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
-            const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
-            // const requesturl = "https://github.techtrend.us/api/v3/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
-            const response= await fetch (requesturl, {
-               method: 'GET', 
-               headers:h
-             })
-            const result = await response.json();
-
-            var pulldetails = result.body;
-
-            //var workItemId = pulldetails.substr(4,3);
-
-            var patternmatch = pulldetails.match(/\[(.*?)\]/);
-
-            if (patternmatch) {
- 
-             var workitem = patternmatch[1];
-             var newmatch = workitem.split(/#/);
-             var workItemId = newmatch[1];
-     
-             }
-
-        } catch (err){
-            core.setFailed(err);
-        }
-    try {
-            // const newrequesturl = "https://api.github.com/repos/"+env.ghrepo_owner+"/"+env.ghrepo+"/pulls/"+env.pull_number+"/merge";    
-            const newrequesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
-            // const newrequesturl = "https://github.techtrend.us/api/v3/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
-            const pullresponse= await fetch (newrequesturl, {
+        if(env.pull_number != undefined && env.pull_number != "") {
+            console.log("Getting work item ID from PR title");
+            // const requestUrl = "https://api.github.com/repos/"+env.ghrepo_owner+"/"+env.ghrepo+"/pulls/"+env.pull_number;
+            const requestUrl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+            const response= await fetch (requestUrl, {
                 method: 'GET', 
                 headers:h
-            })
+                })
+            const result = await response.json();
 
-            var pullstatus =pullresponse.status;
-
-            if (workItemId === null)
-            {
-                core.setFailed();
-                console.log("unable to find workitem id, please check if a workitem is linked to pull request");
-                return;
-
-            } else {
-                updateworkitem(workItemId,env,pullstatus);
-            }
-
-        } catch (err){
-            core.setFailed(err.message);
-        }   
+            var pullRequestTitle = result.title;
+            var found = pullRequestTitle.match(/[(0-9)]*/g);
+            var workItemId = found[3];
+            console.log("WorkItem: " + workItemId);
+            return workItemId;
+        } else {
+            console.log("Getting work item ID from BRANCH name");
+            var branchName = env.branch_name;
+            var found = branchName.match(/([0-9]+)/g);
+            var workItemId = found[0];
+            console.log("WorkItem: " + workItemId);
+            return workItemId;
+        }
+    } catch (err){
+        core.setFailed(err);
+    }
 }
 
-async function updateworkitem(workItemId,env,pullstatus) {
+async function isOpened(env) {
+    let h = new Headers();
+    let auth = 'token ' + env.gh_token;
+    h.append ('Authorization', auth );
+    try {   
+        // const requestUrl = "https://api.github.com/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+        const requestUrl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+        const response= await fetch (requestUrl, {
+            method: 'GET', 
+            headers:h
+            })
+        const result = await response.json();
 
-    try {
-    
-    	  let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
-    	  let connection = new azdev.WebApi(env.orgUrl, authHandler);
-          let client = await connection.getWorkItemTrackingApi();
-          var workitem = await client.getWorkItem(workItemId);
-    	  var currentdescr = String (workitem.fields["System.Description"]);
-          var currentstate = workitem.fields["System.State"];
-    
-          var type = await client.getWorkItemType(env.project,String (workitem.fields["System.WorkItemType"]));
+        var pullRequestStatus = result.state;
+        return pullRequestStatus == "open";
+    } catch (err){
+        core.setFailed(err);
+    }
+}
 
-          if (currentstate == env.closedstate)
-          {
-               console.log("WorkItem Cannot be updated");
-               core.setFailed();
-    	  } else {
-               var wstateslength = type.states.length;
-               var i;
-               for (i=wstateslength-1;i>=0;i-- )
-               {
-                   if (currentstate == type.states[i].name)
-                   {
-                       var j = i;
-                       var newstate = type.states[++j].name;             
-                   } 
+async function isMerged(env) {
+    let h = new Headers();
+    let auth = 'token ' + env.gh_token;
+    h.append ('Authorization', auth );
+    // const newRequestUrl = "https://api.github.com/repos/"+env.ghrepo_owner+"/"+env.ghrepo+"/pulls/"+env.pull_number+"/merge";
+    const newRequestUrl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
+    const mergeResponse = await fetch (newRequestUrl, {
+        method: 'GET', 
+        headers:h
+    })
+
+    var pullRequestStatus = mergeResponse.status;
+    if (pullRequestStatus == "204") {
+        return true;
+    }
+
+    return false;
+}
+
+async function isClosed(env) {
+    let h = new Headers();
+    let auth = 'token ' + env.gh_token;
+    h.append ('Authorization', auth );
+    try {   
+        // const requestUrl = "https://api.github.com/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+        const requestUrl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+        const response= await fetch (requestUrl, {
+            method: 'GET', 
+            headers:h
+            })
+        const result = await response.json();
+
+        var pullRequestStatus = result.state;
+        return pullRequestStatus == "closed";
+    } catch (err){
+        core.setFailed(err);
+    }
+}
+
+async function updateWorkItem(workItemId, env) {
+    let authHandler = azureDevOpsHandler.getPersonalAccessTokenHandler(env.ado_token);
+    // let connection = new azureDevOpsHandler.WebApi("https://dev.azure.com/" + env.ado_organization, authHandler);
+    let connection = new azureDevOpsHandler.WebApi("https://devops.azurecloudgov.us/" + env.ado_organization, authHandler);
+    let client = await connection.getWorkItemTrackingApi();
+    var workItem = await client.getWorkItem(workItemId);
+    var currentDescription = String (workItem.fields["System.Description"]);
+    var currentState = workItem.fields["System.State"];
+    var workItemType = workItem.fields["System.WorkItemType"];
+    console.log("Work item type: " + workItemType);
+    if (workItemType == "Task" || workItemType == "Bug" || workItemType == "Change request") {
+
+        if (currentState == env.closedstate)
+        {
+            console.log("WorkItem is already closed and cannot be updated anymore.");
+            return;
+        } else if (currentState == env.propenstate && await isMerged(env) == false) {
+            console.log("WorkItem is already in a state of PR open, will not update.");
+            return;
+        }
+        else {        
+            let workItemSaveResult = null;
+            let mergeStatus = [];
+            let newDescription = [];
+
+            if (await isMerged(env) == true) {
+                console.log("PR IS MERGED");
+                mergeStatus = "Linked Pull Request merge is successful";
+                newDescription = currentDescription + "<br />" + mergeStatus;               
+                let patchDocument = [
+                    {
+                        op: "add",
+                        path: "/fields/System.State",
+                        value: env.closedstate
+                    },
+                    {
+                        op: "add",
+                        path: "/fields/System.Description",
+                        value: newDescription
+                    }
+                ];
+
+                workItemSaveResult = await client.updateWorkItem(
+                        (customHeaders = []),
+                        (document = patchDocument),
+                        (id = workItemId),
+                        (project = env.project),
+                        (validateOnly = false)
+                        );
+                console.log("Work Item " + workItemId + " state is updated to " + env.closedstate);         
+            } else if (await isOpened(env) == true) {
+                try {
+                console.log("PR IS OPENED: " + env.propenstate);
+                mergeStatus = "Linked new Pull Request to Azure Boards";
+                newDescription = currentDescription + "<br />" + mergeStatus;
+                let patchDocument = [
+                    {
+                        op: "add",
+                        path: "/fields/System.State",
+                        value: env.propenstate
+                    },
+                    {
+                        op: "add",
+                        path: "/fields/System.Description",
+                        value: newDescription
+                    }
+                ];
+
+                workItemSaveResult = await client.updateWorkItem(
+                        (customHeaders = []),
+                        (document = patchDocument),
+                        (id = workItemId),
+                        (project = env.project),
+                        (validateOnly = false)
+                        );
+                console.log("Work Item " + workItemId + " state is updated to " + env.propenstate);     
+                } catch (err) {
+                    console.log(err);
                 }
-                
-                let workItemSaveResult = null;
-                let mergestatus = [];
-                let newdescription = [];
-                if (pullstatus == "204"){
-			
-                    mergestatus = "Linked Pull Request merge is successful";
-                    newdescription = currentdescr + "<br />" + mergestatus;               
+            } else if (await isClosed(env) == true) {
+                try {
+                    console.log("PR IS CLOSED: " + env.inprogressstate);
+                    mergeStatus = "Pull request was rejected";
+                    newDescription = currentDescription + "<br />" + mergeStatus;
                     let patchDocument = [
                         {
                             op: "add",
                             path: "/fields/System.State",
-                            value: newstate
+                            value: env.inprogressstate
                         },
                         {
                             op: "add",
                             path: "/fields/System.Description",
-                            value: newdescription
+                            value: newDescription
                         }
                     ];
-
-                    workItemSaveResult = await client.updateWorkItem(
-                           (customHeaders = []),
-                           (document = patchDocument),
-                           (id = workItemId),
-                           (project = env.project),
-                           (validateOnly = false)
-                          );
-                   console.log("Work Item " + workItemId + " state is updated to " + newstate);         
-                   return workItemSaveResult;
-
-                 } else if (pullstatus == "404"){
-
-                    mergestatus = "Pull Request closed without merge";
-                    newdescription = currentdescr + "<br />" + mergestatus;
-
-                    let patchDocument = [
-                        {
-                            op: "add",
-                            path: "/fields/System.State",
-                            value: currentstate
-                        },
-                        {
-                            op: "add",
-                            path: "/fields/System.Description",
-                            value: newdescription
-                        }
-                    ];
-
-                    let workItemSaveResult = null;
-                
+        
                     workItemSaveResult = await client.updateWorkItem(
                             (customHeaders = []),
                             (document = patchDocument),
@@ -171,48 +227,44 @@ async function updateworkitem(workItemId,env,pullstatus) {
                             (project = env.project),
                             (validateOnly = false)
                             );
-                    
-                    console.log("Work Item " + workItemId + " state is not updated");        
-                    return workItemSaveResult;
-                    
-                    } else {
-
-                        mergestatus = "Unable to get pull request details";
-                        newdescription = currentdescr + "<br />" + mergestatus;
-
-                        let patchDocument = [
-                            {
-                                op: "add",
-                                path: "/fields/System.State",
-                                value: currentstate
-                            },
-                            {
-                                op: "add",
-                                path: "/fields/System.Description",
-                                value: newdescription
-                            }
-                        ];
-    
-                        let workItemSaveResult = null;
-                    
-                        workItemSaveResult = await client.updateWorkItem(
-                                (customHeaders = []),
-                                (document = patchDocument),
-                                (id = workItemId),
-                                (project = env.project),
-                                (validateOnly = false)
-                                );
-                        console.log(mergestatus);
-                        return workItemSaveResult;
+                    console.log("Work Item " + workItemId + " state is updated to " + env.inprogressstate);     
+                    } catch (err) {
+                        console.log(err);
                     }
-                
+            } else {
+                try {
+                    console.log("BRANCH IS OPEN: " + env.inprogressstate);
+                    mergeStatus = "Pull request was rejected";
+                    newDescription = currentDescription + "<br />" + mergeStatus;
+                    let patchDocument = [
+                        {
+                            op: "add",
+                            path: "/fields/System.State",
+                            value: env.inprogressstate
+                        },
+                        {
+                            op: "add",
+                            path: "/fields/System.Description",
+                            value: newDescription
+                        }
+                    ];
+        
+                    workItemSaveResult = await client.updateWorkItem(
+                            (customHeaders = []),
+                            (document = patchDocument),
+                            (id = workItemId),
+                            (project = env.project),
+                            (validateOnly = false)
+                            );
+                    console.log("Work Item " + workItemId + " state is updated to " + env.inprogressstate);     
+                    } catch (err) {
+                        console.log(err);
+                    }
             }
 
-            console.log("Work Item State Updated");
-
-    } catch (err){
-        core.setFailed(err.message);
-    }	
+            return workItemSaveResult;
+        }
+    }
 }
 
 function getValuesFromPayload(payload,env)
@@ -222,15 +274,17 @@ function getValuesFromPayload(payload,env)
 
         env : {
             organization: env.ado_organization != undefined ? env.ado_organization : "",
-            orgUrl: env.ado_organization != undefined ? "https://devops.azurecloudgov.us/" + env.ado_organization : "",
-            // orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
-            adoToken: env.ado_token != undefined ? env.ado_token : "",
+            orgurl: env.ado_organization != undefined ? "https://devops.azurecloudgov.us/" + env.ado_organization : "",
+            ado_token: env.ado_token != undefined ? env.ado_token : "",
             project: env.ado_project != undefined ? env.ado_project : "",
             ghrepo_owner: env.gh_repo_owner != undefined ? env.gh_repo_owner :"",
             ghrepo: env.gh_repo != undefined ? env.gh_repo :"",
             pull_number: env.pull_number != undefined ? env.pull_number :"",
             closedstate: env.closedstate != undefined ? env.closedstate :"",
-	        ghtoken: env.gh_token != undefined ? env.gh_token :""
+            propenstate: env.propenstate != undefined ? env.propenstate :"",
+            inprogressstate: env.inprogressstate != undefined ? env.inprogressstate :"",
+            branch_name: env.branch_name != undefined ? env.branch_name :"",
+	        gh_token: env.gh_token != undefined ? env.gh_token :""
         }
     }
 
