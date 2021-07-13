@@ -22,7 +22,8 @@ function main () {
    {
     	getworkitemid(vm.env);
    } else {
-        core.setFailed();
+        // core.setFailed();
+       core.setFailed(err.toString());
    }
     
 }
@@ -58,8 +59,9 @@ async function getworkitemid (env) {
 
         } catch (err){
         // core.setFailed(err);
-        const passErrorAsAStringBecauseItsRequired = err.toString()
-        core.setFailed(passErrorAsAStringBecauseItsRequired)
+        // const passErrorAsAStringBecauseItsRequired = err.toString()
+        // core.setFailed(passErrorAsAStringBecauseItsRequired)
+        core.setFailed(err.toString());
         }
     try {
             // const newrequesturl = "https://api.github.com/repos/"+env.ghrepo_owner+"/"+env.ghrepo+"/pulls/"+env.pull_number+"/merge";    
@@ -84,8 +86,9 @@ async function getworkitemid (env) {
 
         } catch (err){
         // core.setFailed(err.message);
-        const passErrorAsAStringBecauseItsRequired = err.toString()
-        core.setFailed(passErrorAsAStringBecauseItsRequired)
+        // const passErrorAsAStringBecauseItsRequired = err.toString()
+        // core.setFailed(passErrorAsAStringBecauseItsRequired)
+        core.setFailed(err.toString());
         }   
 }
 
@@ -216,8 +219,9 @@ async function updateworkitem(workItemId,env,pullstatus) {
 
     } catch (err){
         // core.setFailed(err.message);
-        const passErrorAsAStringBecauseItsRequired = err.toString()
-        core.setFailed(passErrorAsAStringBecauseItsRequired)
+        // const passErrorAsAStringBecauseItsRequired = err.toString()
+        // core.setFailed(passErrorAsAStringBecauseItsRequired)
+        core.setFailed(err.toString());
     }	
 }
 
