@@ -76,12 +76,12 @@ jobs:
     steps:       
     - uses: synced-actions/github-actions-pr-sync@main
       env: 
-        gh_token : '${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}'   
+        gh_token : '${{ secrets.GH_TOKEN }}'   
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
         ado_organization: '${{ secrets.ADO_ORGANIZATION }}'
         ado_project: '${{ secrets.ADO_PROJECT }}'
-        closedstate: 'Closed'
-        gh_repo_owner: 'TechTrend'
-        gh_repo: 'GABDemoAgile'
+        closedstate: ''
+        gh_repo_owner: ''
+        gh_repo: ''
         pull_number: '${{github.event.number}}' 
 ```
