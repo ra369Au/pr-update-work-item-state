@@ -225,7 +225,7 @@ function getValuesFromPayload(payload,env)
             orgUrl: env.ado_organization != undefined ? "https://devops.azurecloudgov.us/" + env.ado_organization : "",
             adoToken: env.ado_token != undefined ? env.ado_token : "",
             // project: env.ado_project != undefined ? env.ado_project : "",
-            project: env.ado_project != undefined ? "https://devops.azurecloudgov.us/DefaultCollection/" + env.ado_project : "",
+            project: env.ado_project != undefined ? "https://devops.azurecloudgov.us/" + env.ado_project : "",
             ghrepo_owner: env.gh_repo_owner != undefined ? env.gh_repo_owner :"",
             ghrepo: env.gh_repo != undefined ? env.gh_repo :"",
             pull_number: env.pull_number != undefined ? env.pull_number :"",
