@@ -28,37 +28,54 @@ async function getworkitemid(env) {
     h.append('Authorization', auth);
 
     try {
-        const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
-        const response = await fetch(requesturl, {
-            method: 'GET',
-            headers: h
-        })
-        const result = await response.json();
+        if (env.pull_number != undefined && env.pull_number != "") {
+            console.log("Getting work item ID from PR title");
+            const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+            const response = await fetch(requesturl, {
+                method: 'GET',
+                headers: h
+            })
+            const result = await response.json();
 
-        var pulldetails = result.body;
-        var patternmatch = pulldetails.match(/[(0-9)]*/g);
-
-        if (patternmatch) {
-            var workitem = patternmatch[1];
-            var newmatch = workitem.split(/#/);
-            var workItemId = newmatch[1];
-         }
-        console.log("WorkItem: " + workItemId);
-        return workItemId;
-
-        // var pulldetails = result.body;
-        //var workItemId = pulldetails.substr(4,3);
-        // var patternmatch = pulldetails.match(/\[(.*?)\]/);
-
-        // if (patternmatch) {
-        //     var workitem = patternmatch[1];
-        //     var newmatch = workitem.split(/#/);
-        //     var workItemId = newmatch[1];
-        // }
-    }
-    catch (err) {
+            var pulldetails = result.body;
+            var patternmatch = pulldetails.match(/[(0-9)]*/g);
+            var workItemId = patternmatch[3];
+            console.log("WorkItem: " + workItemId);
+            return workItemId;
+        } else {
+            console.log("Getting work item ID from BRANCH name");
+            var branchName = env.branch_name;
+            var patternmatch = branchName.match(/([0-9]+)/g);
+            var workItemId = patternmatch[0];
+            console.log("WorkItem: " + workItemId);
+            return workItemId;
+        }
+    } catch (err) {
         core.setFailed(err);
     }
+
+    // try {
+    //     const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+    //     const response = await fetch(requesturl, {
+    //         method: 'GET',
+    //         headers: h
+    //     })
+    //     const result = await response.json();
+
+    //     var pulldetails = result.body;
+    //     var patternmatch = pulldetails.match(/[(0-9)]*/g);
+
+    //     if (patternmatch) {
+    //         var workitem = patternmatch[1];
+    //         var newmatch = workitem.split(/#/);
+    //         var workItemId = newmatch[1];
+    //      }
+    //     console.log("WorkItem: " + workItemId);
+    //     return workItemId;
+    // }
+    // catch (err) {
+    //     core.setFailed(err);
+    // }
 
     try {
         const newrequesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
