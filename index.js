@@ -107,7 +107,7 @@ async function updateworkitem(workItemId, env, pullstatus) {
                     {
                         op: "add",
                         path: "/fields/System.State",
-                        value: env.newstate
+                        value: env.closedstate
                     },
                     {
                         op: "add",
@@ -123,7 +123,7 @@ async function updateworkitem(workItemId, env, pullstatus) {
                     (project = env.project),
                     (validateOnly = false)
                 );
-                console.log("Work Item " + workItemId + " state is updated to " + env.newstate);
+                console.log("Work Item " + workItemId + " state is updated to " + env.closedstate);
                 return workItemSaveResult;
 
             }
