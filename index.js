@@ -34,15 +34,27 @@ async function getworkitemid(env) {
             headers: h
         })
         const result = await response.json();
+
         var pulldetails = result.body;
-        //var workItemId = pulldetails.substr(4,3);
-        var patternmatch = pulldetails.match(/\[(.*?)\]/);
+        var patternmatch = pulldetails.match(/[(0-9)]*/g);
 
         if (patternmatch) {
             var workitem = patternmatch[1];
             var newmatch = workitem.split(/#/);
             var workItemId = newmatch[1];
-        }
+         }
+        console.log("WorkItem: " + workItemId);
+        return workItemId;
+
+        // var pulldetails = result.body;
+        //var workItemId = pulldetails.substr(4,3);
+        // var patternmatch = pulldetails.match(/\[(.*?)\]/);
+
+        // if (patternmatch) {
+        //     var workitem = patternmatch[1];
+        //     var newmatch = workitem.split(/#/);
+        //     var workItemId = newmatch[1];
+        // }
     }
     catch (err) {
         core.setFailed(err);
