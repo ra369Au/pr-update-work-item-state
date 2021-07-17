@@ -4,7 +4,6 @@ const github = require(`@actions/github`);
 const fetch = require("node-fetch");
 global.Headers = fetch.Headers;
 
-
 main();
 
 function main() {
