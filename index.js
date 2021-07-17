@@ -37,7 +37,7 @@ async function getworkitemid(env) {
             })
             const result = await response.json();
 
-            var pulldetails = result.body;
+            var pulldetails = result.title;
             var patternmatch = pulldetails.match(/[(0-9)]*/g);
             var workItemId = patternmatch[3];
             console.log("WorkItem: " + workItemId);
