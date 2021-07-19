@@ -36,7 +36,8 @@ async function getworkitemid(env) {
         const result = await response.json();
 
         var pulldetails = result.body;
-        var patternmatch = pulldetails.match(/[(0-9)]*/g);
+        // var patternmatch = pulldetails.match(/[(0-9)]*/g);
+        var patternmatch = pulldetails.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi);
 
         if (patternmatch) {
             var workitem = patternmatch[1];
