@@ -29,7 +29,7 @@ async function getworkitemid(env) {
 
     try {
         // const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
-        const requesturl = "https://github.techtrend.us/api/v3/" + env.gh_repo + "/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number;
+        const requesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pull/" + env.pull_number;
         const response = await fetch(requesturl, {
             method: 'GET',
             headers: h
@@ -53,7 +53,7 @@ async function getworkitemid(env) {
 
     try {
         // const newrequesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
-        const newrequesturl = "https://github.techtrend.us/api/v3/" + env.gh_repo + "/" + env.ghrepo_owner + "/" + env.ghrepo + "/pulls/" + env.pull_number + "/merge";
+        const newrequesturl = "https://github.techtrend.us/api/v3/repos/" + env.ghrepo_owner + "/" + env.ghrepo + "/pull/" + env.pull_number + "/merge";
         const pullresponse = await fetch(newrequesturl, {
             method: 'GET',
             headers: h
